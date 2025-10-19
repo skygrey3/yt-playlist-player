@@ -7,7 +7,7 @@
 - [License](#license)
 
 ## Overview
-This is a lightweight YouTube player that allows users to interact with any playlist. It requires no login and provides basic playback controls (play, pause, skip, previous, shuffle). It is built with React, Redux and Material-UI.
+This is a lightweight React app that acts as a YouTube player; allows users to interact with any playlist. It requires no login and provides basic playback controls (play, pause, skip, previous, shuffle). It is built with React, Redux and Material-UI.
 
 ## Installation
 Here are the steps to install and run the player locally:

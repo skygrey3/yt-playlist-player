@@ -13,25 +13,27 @@ export default function Controls() {
   */
   return (
     <div style={{ display: "flex", justifyContent: "center", gap: "1rem", marginTop: "1rem" }}>
-      <IconButton onClick={() => dispatch(prevVideo())}>
+      <IconButton onClick={() => dispatch(prevVideo())} sx={{ color: "#bdbac9"}}>
         <SkipPrevious />
       </IconButton>
 
-      <IconButton onClick={() => dispatch(togglePlay())}>
+      <IconButton onClick={() => dispatch(togglePlay())} sx={{ color: "#bdbac9"}}>
         {playing ? <Pause /> : <PlayArrow />}
       </IconButton>
 
-      <IconButton onClick={() => dispatch(nextVideo())}>
+      <IconButton onClick={() => dispatch(nextVideo())} sx={{ color: "#bdbac9"}}>
         <SkipNext />
       </IconButton>
 
-      <IconButton onClick={() => dispatch(toggleShuffle())} color={shuffle ? "primary" : "default"}>
+      <IconButton onClick={() => dispatch(toggleShuffle())} sx={{ color: shuffle ? "#90caf9" : "#bdbac9", }}>
         <Shuffle />
       </IconButton>
 
-      <IconButton onClick={() => dispatch(toggleRepeat())} color={repeat ? "primary" : "default"}>
-        <Repeat />
-      </IconButton>
     </div>
   );
 }
+/*  TODO: add loop button after doing the functionality
+      <IconButton onClick={() => dispatch(toggleRepeat())} color={repeat ? "primary" : "default"}>
+        <Repeat />
+      </IconButton>
+*/

@@ -16,8 +16,7 @@ export default function Player() {
   useEffect(() => {
     
     //console.log("readyToLoad: ", readyToLoad());
-    console.log("playlist: ", playlist);
-    if (!playlist[0]) return;
+    if (playlist.length === 0) return;
 
     // loading the API script only once
     if (!apiLoadedRef.current) {
@@ -32,7 +31,9 @@ export default function Player() {
         width: "854",
         videoId: extractVideoId(currentUrl),
         playerVars: {
-          autoplay: 1, // playing ? 1 : 0
+          // don't force autoplay on a restored session (playing is false after
+          // a reload) — the play/pause effect takes over once the player is ready
+          autoplay: playing ? 1 : 0,
           controls: 1,
           modestbranding: 0,
           rel: 0,
@@ -55,7 +56,10 @@ export default function Player() {
             //if (e.data === 1) dispatch(setPlaying(true));
             //if (e.data === 2) dispatch(setPlaying(false));
             if (e.data === 0) {
-              if (repeat) playerRef.current.loadVideoById(extractVideoId(playlist[currentIndex - 1].url));
+              // repeat-one: reload the video that just ended (playlist[currentIndex]
+              // is stale inside this stale closure, so it always points at the
+              // video before the one currently playing)
+              if (repeat) playerRef.current.loadVideoById(extractVideoId(playlist[currentIndex - 1]?.url ?? playlist[0]?.url));
               else dispatch(nextVideo());
             }
           },

@@ -2,7 +2,7 @@
 import { useRef, useState, useEffect } from 'react';
 import { motion, useInView } from 'motion/react';
 import { useDispatch, useSelector } from "react-redux";
-import { setUrl } from '../store/playerSlice';
+import { setUrl, toggleExclusion } from '../store/playerSlice';
 import './AnimatedList.css';
 
 const AnimatedItem = ({ children, delay = 0, index, onMouseEnter, onClick }) => {
@@ -34,6 +34,7 @@ const AnimatedList = ({
   initialSelectedIndex = -1
 }) => {
   const playlist = useSelector(state => state.player.playlist);
+  const excludedUrls = useSelector(state => state.player.excludedUrls);
   const dispatch = useDispatch();
   const listRef = useRef(null);
   const [selectedIndex, setSelectedIndex] = useState(initialSelectedIndex);
@@ -115,14 +116,25 @@ const AnimatedList = ({
               //if (onItemSelect) {
               //  onItemSelect(item, index);
               //}
+              if (excludedUrls.includes(item.url)) return;
               dispatch(setUrl(index));
             }}
           >
-            <div className={`item ${currentIndex === index ? 'playing' : selectedIndex === index ? 'selected' : ''} ${itemClassName}`}>
+            <div className={`item ${currentIndex === index ? 'playing' : selectedIndex === index ? 'selected' : ''} ${itemClassName} ${excludedUrls.includes(item.url) ? 'excluded' : ''}`}>
               <div className="item-text">
                 <p className="item-title">{item.title}</p>
                 <p className="item-channel">{item.channel}</p>
               </div>
+              <button
+                className="exclude-btn"
+                title={excludedUrls.includes(item.url) ? 'Include back in playback' : 'Exclude from playback'}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  dispatch(toggleExclusion(item.url));
+                }}
+              >
+                {excludedUrls.includes(item.url) ? '＋' : '✕'}
+              </button>
             </div>
           </AnimatedItem>
         ))}

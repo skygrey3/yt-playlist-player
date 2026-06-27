@@ -84,3 +84,32 @@
   pointer-events: none;
   transition: opacity 0.3s ease;
 }
+
+/* exclude-from-playback controls on each playlist row */
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.item .exclude-btn {
+  background: none;
+  border: none;
+  color: #efecffc5;
+  opacity: 0;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0.25rem;
+  transition: opacity 0.15s ease;
+}
+.item:hover .exclude-btn,
+.item.excluded .exclude-btn {
+  opacity: 0.7;
+}
+.item .exclude-btn:hover {
+  opacity: 1;
+}
+.item.excluded {
+  opacity: 0.45;
+  text-decoration: line-through;
+}

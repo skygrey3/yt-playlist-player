@@ -19,6 +19,7 @@ function loadPersistedState() {
         currentUrl: saved.playlist[currentIndex]?.url || null,
         shuffle: Boolean(saved.shuffle),
         repeat: Boolean(saved.repeat),
+        excludedUrls: Array.isArray(saved.excludedUrls) ? saved.excludedUrls : [],
       },
     };
   } catch {
@@ -36,13 +37,13 @@ const store = configureStore({
 // persist the relevant state (debounced so skipping through tracks doesn't spam storage)
 let saveTimer = null;
 store.subscribe(() => {
-  const { playlist, currentIndex, shuffle, repeat } = store.getState().player;
+  const { playlist, currentIndex, shuffle, repeat, excludedUrls } = store.getState().player;
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
     try {
       localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ playlist, currentIndex, shuffle, repeat })
+        JSON.stringify({ playlist, currentIndex, shuffle, repeat, excludedUrls })
       );
     } catch {
       // storage unavailable or full — persistence is best-effort

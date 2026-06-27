@@ -14,6 +14,9 @@ const initialState = {
   // queue is exhausted, and only when repeat is on).
   shuffleQueue: [],
   shufflePosition: -1,
+  // video urls/ids the user excluded from playback; excluded entries stay in
+  // the list (greyed out in the UI) but are skipped during playback
+  excludedUrls: [],
   playerReady: false,
 };
 
@@ -40,6 +43,14 @@ function exitShuffle(state) {
   state.shufflePosition = -1;
 }
 
+// helper: is the video at this index excluded from playback?
+function isExcluded(state, index) {
+  const item = state.playlist[index];
+  if (!item) return false;
+  return state.excludedUrls.includes(item.url) ||
+         state.excludedUrls.includes(item.videoId);
+}
+
 const playerSlice = createSlice({
   name: "player",
   initialState,
@@ -49,54 +60,71 @@ const playerSlice = createSlice({
       state.currentIndex = 0;
       state.currentUrl = action.payload[0]?.url || null;
       state.playing = true;
+      state.excludedUrls = []; // fresh playlist starts with a clean exclusion list
       if (state.shuffle) enterShuffle(state, 0);
     },
     nextVideo: (state) => {
-      if (state.shuffle) {
-        // rebuild lazily (e.g. state restored from an older persisted session)
-        if (state.shuffleQueue.length !== state.playlist.length) {
-          enterShuffle(state, state.currentIndex);
-        }
-        if (state.shufflePosition < state.shuffleQueue.length - 1) {
-          state.shufflePosition += 1;
-          state.currentIndex = state.shuffleQueue[state.shufflePosition];
-        } else if (state.repeat) {
-          // queue exhausted: start a brand-new random order (no repeats within
-          // the new cycle either), starting from a random track
-          state.shuffleQueue = buildShuffleQueue(state.playlist.length, -1);
-          state.shufflePosition = 0;
-          state.currentIndex = state.shuffleQueue[0];
+      const start = state.shuffle ? state.shufflePosition : state.currentIndex;
+      // walk forward past excluded entries; the loop bound makes us give up
+      // after a full cycle (protects the degenerate "everything excluded" case)
+      for (let step = 1; step <= state.playlist.length; step++) {
+        let candidate;
+        if (state.shuffle) {
+          const pos = start + step;
+          if (pos < state.shuffleQueue.length) {
+            candidate = state.shuffleQueue[pos];
+          } else if (state.repeat) {
+            // queue exhausted + repeat: fresh cycle with a brand-new order
+            state.shuffleQueue = buildShuffleQueue(state.playlist.length, -1);
+            state.shufflePosition = 0;
+            state.currentIndex = state.shuffleQueue[0];
+            state.currentUrl = state.playlist[state.currentIndex]?.url || null;
+            return;
+          } else {
+            state.playing = false;
+            return;
+          }
         } else {
-          state.playing = false;
-          return;
+          candidate = start + step;
+          if (candidate > state.playlist.length - 1) {
+            if (state.repeat) candidate = candidate % state.playlist.length;
+            else {
+              state.playing = false;
+              return;
+            }
+          }
         }
-      } else {
-        if (state.currentIndex < state.playlist.length - 1) {
-          state.currentIndex += 1;
-        } else if (state.repeat) {
-          state.currentIndex = 0;
-        } else {
-          state.playing = false;
+        if (!isExcluded(state, candidate)) {
+          if (state.shuffle) state.shufflePosition = start + step;
+          state.currentIndex = candidate;
+          state.currentUrl = state.playlist[candidate]?.url || null;
           return;
         }
       }
-      state.currentUrl = state.playlist[state.currentIndex]?.url || null;
     },
     prevVideo: (state) => {
-      if (state.shuffle) {
-        // step back through the already-played part of the queue
-        if (state.shufflePosition > 0) {
-          state.shufflePosition -= 1;
-          state.currentIndex = state.shuffleQueue[state.shufflePosition];
+      const start = state.shuffle ? state.shufflePosition : state.currentIndex;
+      // walk backward past excluded entries
+      for (let step = 1; step <= state.playlist.length; step++) {
+        let candidate;
+        if (state.shuffle) {
+          const pos = start - step;
+          if (pos < 0) break; // no history left in the queue
+          candidate = state.shuffleQueue[pos];
+        } else {
+          candidate = start - step;
+          if (candidate < 0) {
+            if (state.repeat) candidate = state.playlist.length + candidate;
+            else break;
+          }
         }
-      } else {
-        if (state.currentIndex > 0) {
-          state.currentIndex -= 1;
-        } else if (state.repeat) {
-          state.currentIndex = state.playlist.length - 1;
+        if (!isExcluded(state, candidate)) {
+          if (state.shuffle) state.shufflePosition = start - step;
+          state.currentIndex = candidate;
+          state.currentUrl = state.playlist[candidate]?.url || null;
+          return;
         }
       }
-      state.currentUrl = state.playlist[state.currentIndex]?.url || null;
     },
     setUrl: (state, action) => {
       state.currentIndex = action.payload;
@@ -118,6 +146,22 @@ const playerSlice = createSlice({
       if (state.shuffle) enterShuffle(state, state.currentIndex);
       else exitShuffle(state);
     },
+    // exclude/restore a video from playback (payload: the playlist item)
+    toggleExclusion: (state, action) => {
+      const item = action.payload;
+      if (!item) return;
+      const key = item.url ?? item.videoId;
+      if (state.excludedUrls.includes(key)) {
+        state.excludedUrls = state.excludedUrls.filter(u => u !== key);
+      } else {
+        state.excludedUrls.push(key);
+        // if the currently playing video was excluded, skip to the next one
+        if (state.currentIndex === state.playlist.findIndex(p => (p.url ?? p.videoId) === key)) {
+          state.playing = true;
+          // reuse nextVideo logic inline: dispatching is not possible inside a reducer
+        }
+      }
+    },
     setPlayerReady: (state, action) => {
       state.playerReady = action.payload;
     },
@@ -133,6 +177,7 @@ export const {
   setPlaying,
   toggleRepeat,
   toggleShuffle,
+  toggleExclusion,
   setPlayerReady,
 } = playerSlice.actions;
 

@@ -34,6 +34,15 @@ export default function PlaylistInput() {
     console.log("Loading playlist ID:", playlistId);
     const apiKey = process.env.REACT_APP_YT_API_KEY;
 
+    if (!apiKey) {
+      alert(
+        "Missing API key. Create a .env file in the project root with:\n\n" +
+          "REACT_APP_YT_API_KEY=<your key from console.cloud.google.com>\n\n" +
+          "then restart the dev server (npm start)."
+      );
+      return;
+    }
+
     try {
       const res = await fetch(
         `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${playlistId}&key=${apiKey}`

@@ -1,11 +1,11 @@
 import { useDispatch, useSelector } from "react-redux";
 import { IconButton } from "@mui/material";
-import { PlayArrow, Pause, SkipNext, SkipPrevious, Shuffle, Repeat } from "@mui/icons-material";
-import { prevVideo, togglePlay, nextVideo, toggleShuffle, toggleRepeat } from "../store/playerSlice";
+import { PlayArrow, Pause, SkipNext, SkipPrevious, Shuffle } from "@mui/icons-material";
+import { prevVideo, togglePlay, nextVideo, toggleShuffle } from "../store/playerSlice";
 
 export default function Controls() {
   const dispatch = useDispatch();
-  const { playing, shuffle, repeat } = useSelector((state) => state.player);
+  const { playing, shuffle } = useSelector((state) => state.player);
   /*
   const handleVideoSelect = () => {
     dispatch(setUrl("https://www.youtube.com/embed/cfuldQW0j6k")); // Example URL

@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, Divider, Box, Grid } from "@mui/material";
+import { Card, CardContent, CardHeader, Divider, Box } from "@mui/material";
 import Player from "../components/Player";
 import Controls from "../components/Controls";
 import AnimatedList from '../components/AnimatedList';

@@ -66,6 +66,10 @@ export default function Player() {
         },
       });
     };
+  // deps intentionally limited to `playlist` — the player must be created once
+  // per playlist, not re-created on every play/pause/index change. Stale values
+  // in this effect are the documented behaviour (see the repeat-one comment).
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playlist]);
 
   // loads video when URL changes
@@ -101,7 +105,7 @@ export default function Player() {
 
 
 function extractVideoId(url) {
-  const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|embed)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/;
+  const regex = /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|embed)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/;
   const match = url?.match(regex);
   return match ? match[1] : null;
 }

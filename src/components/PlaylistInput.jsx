@@ -6,7 +6,6 @@ import { Grid, TextField, Button } from "@mui/material";
 export default function PlaylistInput() {
   const [url, setUrl] = useState("");
   const dispatch = useDispatch();
-  const [loadPlaylistPressed, setLoadPlaylistPressed] = useState(false);
 
   // a shared link (?list=<playlistId>) pre-fills the input and auto-loads
   // the playlist once on mount, so the recipient lands straight in the player
@@ -86,15 +85,12 @@ export default function PlaylistInput() {
           // keep native accessibility and behavior
           "aria-label": "YouTube playlist URL",
         }}
-        onKeyDown={(e) => e.key === 'Enter' && handleLoadPlaylist() && setLoadPlaylistPressed(true)}
+        onKeyDown={(e) => e.key === 'Enter' && handleLoadPlaylist()}
       />
       <Button 
         variant="outlined"
         color="#170d27"
-        onClick={() => {
-          handleLoadPlaylist();
-          setLoadPlaylistPressed(true);
-        }}>
+        onClick={handleLoadPlaylist}>
           Load Playlist
       </Button>
     </Grid>

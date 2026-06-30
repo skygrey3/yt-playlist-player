@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, Divider, Box } from "@mui/material";
 import Player from "../components/Player";
 import Controls from "../components/Controls";
+import ShareButton from "../components/ShareButton";
 import AnimatedList from '../components/AnimatedList';
 const items = []; 
 
@@ -75,7 +76,21 @@ export default function PlayerContainer() {
                 />
             </Box>
             </CardContent>
-            <Controls />
+            <Box sx={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center", mt: 1, pb: 2 }}>
+                <Controls />
+                <Box
+                    sx={{
+                        position: "absolute",
+                        right: 16,
+                        top: 0,
+                        bottom: 0,
+                        display: "flex",
+                        alignItems: "center",
+                    }}
+                >
+                    <ShareButton />
+                </Box>
+            </Box>
         </Card>
     );
 }

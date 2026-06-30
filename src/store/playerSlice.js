@@ -17,6 +17,9 @@ const initialState = {
   // video urls/ids the user excluded from playback; excluded entries stay in
   // the list (greyed out in the UI) but are skipped during playback
   excludedUrls: [],
+  // YouTube playlist id the current playlist was loaded from — null when the
+  // player was restored from cache without one. Used for the share link.
+  playlistId: null,
   playerReady: false,
 };
 
@@ -56,9 +59,10 @@ const playerSlice = createSlice({
   initialState,
   reducers: {
     setPlaylist: (state, action) => {
-      state.playlist = action.payload;
+      state.playlist = action.payload.videos;
+      state.playlistId = action.payload.playlistId ?? null;
       state.currentIndex = 0;
-      state.currentUrl = action.payload[0]?.url || null;
+      state.currentUrl = action.payload.videos[0]?.url || null;
       state.playing = true;
       state.excludedUrls = []; // fresh playlist starts with a clean exclusion list
       if (state.shuffle) enterShuffle(state, 0);

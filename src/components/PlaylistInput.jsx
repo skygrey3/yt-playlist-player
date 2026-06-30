@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { setPlaylist } from "../store/playerSlice";
 import { Grid, TextField, Button } from "@mui/material";
@@ -8,12 +8,28 @@ export default function PlaylistInput() {
   const dispatch = useDispatch();
   const [loadPlaylistPressed, setLoadPlaylistPressed] = useState(false);
 
+  // a shared link (?list=<playlistId>) pre-fills the input and auto-loads
+  // the playlist once on mount, so the recipient lands straight in the player
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const sharedId = params.get("list");
+    if (sharedId) {
+      setUrl(`https://www.youtube.com/playlist?list=${sharedId}`);
+      loadPlaylistById(sharedId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleLoadPlaylist = async () => {
     const playlistId = extractPlaylistId(url);
     if (!playlistId) {
       alert("Invalid playlist URL");
       return;
     }
+    loadPlaylistById(playlistId);
+  };
+
+  const loadPlaylistById = async (playlistId) => {
 
     console.log("Loading playlist ID:", playlistId);
     const apiKey = process.env.REACT_APP_YT_API_KEY;
@@ -32,7 +48,7 @@ export default function PlaylistInput() {
           item.snippet.videoOwnerChannelTitle || item.snippet.channelTitle,
       }));
 
-      dispatch(setPlaylist(videos));
+      dispatch(setPlaylist({ videos, playlistId }));
     } catch (err) {
       console.error("Failed to load playlist:", err);
       alert("Could not load playlist. Check your API key and URL.");

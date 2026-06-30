@@ -130,7 +130,7 @@ const AnimatedList = ({
                 title={excludedUrls.includes(item.url) ? 'Include back in playback' : 'Exclude from playback'}
                 onClick={(e) => {
                   e.stopPropagation();
-                  dispatch(toggleExclusion(item.url));
+                  dispatch(toggleExclusion(item));
                 }}
               >
                 {excludedUrls.includes(item.url) ? '＋' : '✕'}

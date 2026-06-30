@@ -41,7 +41,7 @@ export default function ShareButton() {
       </IconButton>
       <Snackbar
         open={toastOpen}
-        autoHideDuration={2500}
+        autoHideDuration={60000}
         onClose={() => setToastOpen(false)}
         message="Share link copied to clipboard"
       />

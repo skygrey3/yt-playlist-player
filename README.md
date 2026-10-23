@@ -9,7 +9,7 @@
 ## Overview
 This is a lightweight React app that acts as a YouTube player; allows users to interact with any playlist. It requires no login and provides basic playback controls (play, pause, skip, previous, shuffle). It is built with React, Redux and Material-UI.
 
-A live deployment is available at https://yt-playlist-player.vercel.app/
+A live deployment is available at [ytplaylist-player.vercel.app/](https://ytplaylist-player.vercel.app/)
 
 ![App screenshot](docs/screenshot-player.png)
 
